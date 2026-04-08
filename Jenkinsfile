@@ -1,12 +1,16 @@
 pipeline {
     agent any
+    
+    tools {
+        // This MUST match the name you gave in Manage Jenkins -> Tools
+        maven 'Maven3' 
+    }
 
     environment {
-        // --- Nexus Configuration ---
+        // --- Nexus Configuration Updated ---
         NEXUS_VERSION = "nexus3"
         NEXUS_PROTOCOL = "http"
-        // Use the IP of your Ubuntu machine or Docker gateway (172.17.0.1)
-        NEXUS_URL = "10.30.40.102:8081" 
+        NEXUS_URL = "10.30.40.102:9000" 
         NEXUS_REPOSITORY = "maven-releases"
         NEXUS_CREDENTIAL_ID = "nexus-creds"
         
@@ -27,8 +31,7 @@ pipeline {
 
         stage('Build & Package') {
             steps {
-                echo "Building Java application with Maven..."
-                // Ensures we have a clean jar file in the target folder
+                echo "Building Java application..."
                 sh 'mvn clean package -DskipTests'
             }
         }
@@ -36,9 +39,8 @@ pipeline {
         stage('Push to Nexus') {
             steps {
                 script {
-                    echo "Uploading Artifact to Nexus Repository: ${NEXUS_REPOSITORY}"
+                    echo "Uploading Artifact to Nexus at ${NEXUS_URL}"
                     
-                    // Automatically reads info from your pom.xml
                     def pom = readMavenPom file: 'pom.xml'
                     
                     nexusArtifactUploader(
@@ -63,12 +65,10 @@ pipeline {
 
     post {
         success {
-            echo "--- Deployment Successful ---"
-            echo "Artifact is now available at http://${NEXUS_URL}/#browse/browse:${NEXUS_REPOSITORY}"
+            echo "Successfully deployed to: http://${NEXUS_URL}"
         }
         failure {
-            echo "--- Deployment Failed ---"
-            echo "Please check: 1. Nexus Container status, 2. Network connectivity, 3. 'nexus-creds' permissions."
+            echo "Deployment failed. Please verify if http://10.30.40.102:9000 is reachable from the Jenkins server."
         }
     }
 }
