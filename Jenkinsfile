@@ -8,7 +8,7 @@ pipeline {
     environment {
         NEXUS_VERSION = "nexus3"
         NEXUS_PROTOCOL = "http"
-        NEXUS_URL = "10.30.40.102:9000" 
+        NEXUS_URL = "10.30.40.102:8081" 
         NEXUS_REPOSITORY = "maven-releases"
         NEXUS_CREDENTIAL_ID = "nexus-creds"
         GIT_CREDENTIAL_ID = "Git"
